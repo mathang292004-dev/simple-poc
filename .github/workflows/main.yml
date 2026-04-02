@@ -17,7 +17,8 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "-----BEGIN RSA PRIVATE KEY-----
+          cat << 'EOF' > ~/.ssh/id_rsa
+-----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEAv5uqM1fwZDZC5ELLg9pvvO1d7dz6Ek9UG5kuQSA0WVt41dcA
 7D1eIOpZupDyH40kxSRUJK7PRA+zNhIUqCVmCFpSi022f15Tu0z9vJ6KUM5/r/2R
 I5jcd0A755AKPl5oKoauf7UuDAb3fCCiwxMNHeoRNXi2eEszMBwslMZ64RA4gxV8
@@ -43,31 +44,19 @@ r1VqCSh1mye/ZIYUnjkD1qmCGpQr4lGUW/X7HuUQVWzSBe5ag+KZN7lhqPZxhaMC
 kRTeULgPAoGAcHxzmwpcl8xfr9Bw29QWSfh9r4SNIFClj9UiEm9HOoU3O7Tbe8Mp
 eQheD4ibREUQn9CFDm/3Z0l6TaEMBxatWzYWo8Efsj8FjsRY0xgB/iHZ/TlwFOmh
 6Mg7uT5Icp+gLWtKOKPfx4JTGIVGHjTvGUtNfoKtsDJbd1OLaT6VFoA=
------END RSA PRIVATE KEY-----" > ~/.ssh/id_rsa
+-----END RSA PRIVATE KEY-----
+EOF
           chmod 600 ~/.ssh/id_rsa
 
-      # Step 3: Deploy app to EC2 (hardcoded user, host, folder, port)
+      # Step 3: Deploy app to EC2
       - name: Deploy App
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@54.215.143.196 << 'EOF'
-
-          # Go to home
           cd ~
-
-          # Remove old app
           rm -rf app
-
-          # Clone repo
           git clone https://github.com/mathang292004-dev/simple-poc.git app
           cd app
-
-          # Install dependencies
           npm install
-
-          # Stop old app if running
           pkill node || true
-
-          # Start app in background on port 6559
           nohup node app.js > output.log 2>&1 &
-
           EOF
