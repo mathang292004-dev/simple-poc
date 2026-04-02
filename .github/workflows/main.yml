@@ -1,46 +1,73 @@
-name: Deploy App to EC2
+name: Deploy Node App to EC2
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]  # Run on push to main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout repo
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Step 2: Setup SSH key (hardcoded)
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+          echo "-----BEGIN RSA PRIVATE KEY-----
+MIIEpQIBAAKCAQEAv5uqM1fwZDZC5ELLg9pvvO1d7dz6Ek9UG5kuQSA0WVt41dcA
+7D1eIOpZupDyH40kxSRUJK7PRA+zNhIUqCVmCFpSi022f15Tu0z9vJ6KUM5/r/2R
+I5jcd0A755AKPl5oKoauf7UuDAb3fCCiwxMNHeoRNXi2eEszMBwslMZ64RA4gxV8
+BIQ3gFG1ZlwsxcNT+M8q+PUu7+47fDMU123iRvkCIgnLsvtr74N11g1lwXf+KBje
+2FrPypmVywC1nI0WoeiAAzhzJCIhed9T+coASp8MGDWT+Xt1IjpYFuhbBcx2RcTV
+200niOlTH26BYUWSs1O2AlNYejQsfQ0RGPaU6wIDAQABAoIBAQCaXFCwjk7WnLQk
+6f7EmWxdOqjqIJTBvXDXzv7pboVd24gsVcqjhwjW4ZUp7O1yJ6YQwCSdbMsDXNaW
+X9iOYZqibgmDujakw5wXD352vw5U7RcG8/NCRzqNQ40/DtaBylKGt/vKXG7dN5uX
+Pz+Agk+V4uS8PCRcItD5GCl+Lav+tUqjBfyjwSOuJ2KcfgWSAEpjLnYBmHQBt/s9
+72kJC6kg5GAQnGU7SAS+b7b+Xm9ook3Ch6n8xKSYAX7tp+au5mwuZPZWZXhEQuWz
+7psZ7rLXblm1YzSZHiq1vG/FmnPNk8//bzYdcTsLdN7jGkJXx4ah8Wa108W9coow
+fXTrGLKBAoGBAOPdIYVO8mR9pDpkTqkGUmh/vB/pbddLegVR9Ocf2Apr7BUprgyC
+GODHl4k5+razZMIoy+nttjnutmRd23429KqRhqWHxJPgF3odRmUrum8YX5PSxnTx
+5KqJTMV+PKVRpuOXp9HAs9iodhFP+enI3VqYFx1nkdQ7ufRJKozEmjlBAoGBANdE
+ea84a1oiYOe5AM5Er4on8hcSHZ33zeADPH3Jj6fDUrRSeGnZeGO5PxQSxMAx7GTV
+lurMyneNEMqHsrEfAHTsbs5H8Ll4k79uiUuggfcO8+9ll2obNVAQmD8ddTKzIp9E
+LTaMF5T/BuP1OMLbFUJ9e2xVj9BkjGxttAKuQjcrAoGBAMsK2rnNNVSyWErn4ufe
+iEQxvlK5UHVN/jcLZq0kxP/UVxQshbkDnGN/ttpC3dM7W4dfjwSuG3jX65LXx6Ra
+F/59mnuZ1WLnhkP8HiQ8qO4hy9kPMmQ2v8nueohpCmVNsuaO1q2jhx6CTmLy3wCh
+Sg1WBRLgnSN+7R5urAmvjrWBAoGBALC5o5iJHgDaVmoGRLYSR3aJgsMT+UKVjOvK
+XF/8GLamsQAe8IIdqitcin+FRQdwNN03SHWs+M8a/Vz3+GhWxj43WGR7RRJO/iTb
+r1VqCSh1mye/ZIYUnjkD1qmCGpQr4lGUW/X7HuUQVWzSBe5ag+KZN7lhqPZxhaMC
+kRTeULgPAoGAcHxzmwpcl8xfr9Bw29QWSfh9r4SNIFClj9UiEm9HOoU3O7Tbe8Mp
+eQheD4ibREUQn9CFDm/3Z0l6TaEMBxatWzYWo8Efsj8FjsRY0xgB/iHZ/TlwFOmh
+6Mg7uT5Icp+gLWtKOKPfx4JTGIVGHjTvGUtNfoKtsDJbd1OLaT6VFoA=
+-----END RSA PRIVATE KEY-----" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Deploy to EC2
+      # Step 3: Deploy app to EC2 (hardcoded user, host, folder, port)
+      - name: Deploy App
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+          ssh -o StrictHostKeyChecking=no ubuntu@54.215.143.196 << 'EOF'
 
+          # Go to home
           cd ~
 
           # Remove old app
           rm -rf app
 
-          # Clone latest repo
+          # Clone repo
           git clone https://github.com/mathang292004-dev/simple-poc.git app
           cd app
 
           # Install dependencies
           npm install
 
-          # Stop old app (safe for POC)
+          # Stop old app if running
           pkill node || true
 
-          # Start app in background
+          # Start app in background on port 6559
           nohup node app.js > output.log 2>&1 &
-
-          echo "Deployment completed successfully 🚀"
-          
 
           EOF
