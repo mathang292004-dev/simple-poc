@@ -1,0 +1,11 @@
+name: Simple POC
+
+on: push   # Run when code is pushed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print Message
+        run: echo "Hello, this is my first GitHub Action!"
