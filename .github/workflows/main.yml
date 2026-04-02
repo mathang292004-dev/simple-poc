@@ -41,5 +41,6 @@ jobs:
           nohup node app.js > output.log 2>&1 &
 
           echo "Deployment completed successfully 🚀"
+          
 
           EOF
