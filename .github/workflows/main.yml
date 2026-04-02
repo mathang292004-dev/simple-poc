@@ -2,14 +2,14 @@ name: Deploy Node App to EC2
 
 on:
   push:
-    branches: [ main ]  # Run on push to main branch
+    branches: [ main ]  # Trigger on push to main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repo
+      # Step 1: Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
@@ -48,15 +48,25 @@ eQheD4ibREUQn9CFDm/3Z0l6TaEMBxatWzYWo8Efsj8FjsRY0xgB/iHZ/TlwFOmh
 EOF
           chmod 600 ~/.ssh/id_rsa
 
-      # Step 3: Deploy app to EC2
+      # Step 3: Deploy Node.js app to EC2
       - name: Deploy App
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@54.215.143.196 << 'EOF'
-          cd ~
-          rm -rf app
-          git clone https://github.com/mathang292004-dev/simple-poc.git app
-          cd app
-          npm install
-          pkill node || true
-          nohup node app.js > output.log 2>&1 &
-          EOF
+cd ~
+# Remove old app folder
+rm -rf app
+
+# Clone latest repo
+git clone https://github.com/mathang292004-dev/simple-poc.git app
+cd app
+
+# Install dependencies
+npm install
+
+# Stop old Node.js process if running
+pkill node || true
+
+# Start app in background on port 6559
+nohup node app.js > output.log 2>&1 &
+
+EOF
