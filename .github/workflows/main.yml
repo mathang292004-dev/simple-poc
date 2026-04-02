@@ -28,6 +28,7 @@ jobs:
           # Remove old app
           rm -rf app
 
+
           # Clone latest code
           git clone https://github.com/mathang292004-dev/simple-poc.git app
           cd app
